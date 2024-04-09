@@ -62,4 +62,20 @@ export class AuthService {
         await this.tokenService.deleteRefreshToken(currentUser)
         return 'Успешный выход'
     }
+
+    async refreshTokens(email: LoginAdminDto, token: string) {
+        const currentUser = await this.userRepository.findOne({where: {...email}})
+        if (!currentUser) {
+            throw new BadRequestException()
+        }
+
+        const verifyToken = this.tokenService.verifyToken(token)
+        if (!verifyToken) {
+            throw new BadRequestException()
+        }
+        delete currentUser.password
+        const newTokens = this.tokenService.generateTokenPairs(currentUser)
+        await this.tokenService.saveRefreshToken(newTokens.refreshToken, currentUser)
+        return {user: currentUser, ...newTokens}
+    }
 }

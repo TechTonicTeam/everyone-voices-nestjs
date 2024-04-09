@@ -1,7 +1,7 @@
-import {BadRequestException, Body, Controller, HttpStatus, Put, Res} from "@nestjs/common";
+import {BadRequestException, Body, Controller, HttpStatus, Put, Req, Res} from "@nestjs/common";
 import {LoginAdminDto, LoginUserDto} from "./dto";
 import {AuthService} from "./auth.service";
-import {Response} from 'express'
+import {Response, Request} from 'express'
 
 @Controller('auth')
 export class AuthController {
@@ -14,7 +14,7 @@ export class AuthController {
         try {
             const loginInfo = await this.authService.userLogin(userInfo)
             response.cookie('refreshToken', loginInfo.tokens.refreshToken, {httpOnly: true})
-            response.status(HttpStatus.OK).json({
+            return response.status(HttpStatus.OK).json({
                 user: loginInfo.currentUser,
                 accessToken: loginInfo.tokens.accessToken
             })
@@ -29,7 +29,7 @@ export class AuthController {
         try {
             const loginInfo = await this.authService.adminLogin(userInfo)
             response.cookie('refreshToken', loginInfo.tokens.refreshToken, {httpOnly: true})
-            response.status(HttpStatus.OK).json({
+            return response.status(HttpStatus.OK).json({
                 user: loginInfo.currentUser,
                 accessToken: loginInfo.tokens.accessToken
             })
@@ -45,6 +45,26 @@ export class AuthController {
             response.clearCookie('refreshToken')
             return response.status(HttpStatus.OK).json('Успешный выход')
         } catch (e) {
+            return new BadRequestException(e.message)
+        }
+    }
+
+    @Put('refresh')
+    async refreshToken(@Body() email: LoginAdminDto, @Res() response: Response, @Req() request: Request) {
+        try {
+            const refreshToken = request.cookies['refreshToken']
+            console.log(refreshToken)
+            if (!refreshToken) {
+                return new BadRequestException()
+            }
+
+            const userWithTokens = await this.authService.refreshTokens(email, refreshToken)
+            response.cookie('refreshToken', userWithTokens.refreshToken, {httpOnly: true})
+            delete userWithTokens.refreshToken
+            return response.status(HttpStatus.OK).json({
+                ...userWithTokens
+            })
+        } catch(e) {
             return new BadRequestException(e.message)
         }
     }

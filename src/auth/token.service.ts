@@ -40,4 +40,8 @@ export class TokenService {
 
         await this.tokenRepository.delete(currentToken)
     }
+
+    verifyToken(token: string) {
+        return this.jwtService.verify(token)
+    }
 }
