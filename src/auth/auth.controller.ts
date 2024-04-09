@@ -1,5 +1,5 @@
 import {BadRequestException, Body, Controller, HttpStatus, Put, Res} from "@nestjs/common";
-import {LoginUserDto} from "./dto";
+import {LoginAdminDto, LoginUserDto} from "./dto";
 import {AuthService} from "./auth.service";
 import {Response} from 'express'
 
@@ -25,7 +25,16 @@ export class AuthController {
     }
 
     @Put('admin-login')
-    adminLogin() {
-
+    async adminLogin(@Body() userInfo: LoginAdminDto, @Res() response: Response) {
+        try {
+            const loginInfo = await this.authService.adminLogin(userInfo)
+            response.cookie('refreshToken', loginInfo.tokens.refreshToken, {httpOnly: true})
+            response.status(HttpStatus.OK).json({
+                user: loginInfo.currentUser,
+                accessToken: loginInfo.tokens.accessToken
+            })
+        } catch (e) {
+            return new BadRequestException(e.message)
+        }
     }
 }

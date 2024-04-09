@@ -22,6 +22,7 @@ export class UserService {
     }
 
     async createNewAdmin(userInfo: CreateAdminDto) {
-
+        await this.userRepository.save({...userInfo, role: 'admin'})
+        return userInfo
     }
 }

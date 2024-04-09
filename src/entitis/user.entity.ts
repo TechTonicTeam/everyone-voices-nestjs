@@ -19,7 +19,9 @@ export class Users {
     })
     picture: string
 
-    @Column()
+    @Column({
+        nullable: true
+    })
     password: string
 
     @Column()

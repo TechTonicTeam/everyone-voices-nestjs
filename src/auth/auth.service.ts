@@ -1,5 +1,5 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
-import {LoginUserDto} from "./dto";
+import {LoginAdminDto, LoginUserDto} from "./dto";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Users} from "../entitis/user.entity";
 import {Repository} from "typeorm";
@@ -15,6 +15,7 @@ export class AuthService {
         private readonly passwordService: PasswordService
     ) {
     }
+
     async userLogin(userInfo: LoginUserDto) {
         const currentUser = await this.userRepository.findOne({where: {email: userInfo.email}})
         if (!currentUser) {
@@ -27,6 +28,21 @@ export class AuthService {
             throw new BadRequestException('Неверный логин/пароль')
         }
         delete currentUser.password
+
+        const tokens = this.tokenService.generateTokenPairs(currentUser)
+
+        await this.tokenService.saveRefreshToken(tokens.refreshToken, currentUser)
+        return {
+            currentUser,
+            tokens
+        }
+    }
+
+    async adminLogin(userInfo: LoginAdminDto) {
+        const currentUser = await this.userRepository.findOne({where: {email: userInfo.email}})
+        if (!currentUser) {
+            throw new BadRequestException()
+        }
 
         const tokens = this.tokenService.generateTokenPairs(currentUser)
 
