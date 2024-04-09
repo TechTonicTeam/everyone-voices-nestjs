@@ -1,9 +1,9 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {JwtService} from '@nestjs/jwt'
 import {InjectRepository} from "@nestjs/typeorm";
-import {Users} from "../entitis/user.entity";
+import {Users} from "../entities/user.entity";
 import {Repository} from "typeorm";
-import {Token} from "../entitis/token.entity";
+import {Token} from "../entities/token.entity";
 @Injectable()
 export class TokenService {
     constructor(

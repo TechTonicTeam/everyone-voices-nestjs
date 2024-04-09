@@ -1,6 +1,6 @@
 import {BadRequestException, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
-import {Users} from "../entitis/user.entity";
+import {Users} from "../entities/user.entity";
 import {Repository} from "typeorm";
 import {CreateAdminDto, CreateUserDto} from "./dto";
 import {PasswordService} from "./password.service";

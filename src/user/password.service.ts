@@ -2,7 +2,7 @@ import {BadRequestException, Injectable, UnauthorizedException} from "@nestjs/co
 import {pbkdf2Sync} from 'crypto'
 import {InjectRepository} from "@nestjs/typeorm";
 import {Repository} from "typeorm";
-import {Users} from "../entitis/user.entity";
+import {Users} from "../entities/user.entity";
 
 @Injectable()
 
