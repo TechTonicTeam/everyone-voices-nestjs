@@ -4,11 +4,13 @@ import {ConfigModule, ConfigService} from "@nestjs/config";
 import {UserModule} from "./user/user.module";
 import {AuthModule} from "./auth/auth.module";
 import {JwtModule} from "@nestjs/jwt";
+import {PostModule} from "./post/post.module";
 
 @Module({
   imports: [
       UserModule,
       AuthModule,
+      PostModule,
       ConfigModule.forRoot({isGlobal: true}),
       TypeOrmModule.forRootAsync({
         imports: [ConfigModule],

@@ -2,6 +2,7 @@ import {Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeo
 import {Token} from "./token.entity";
 import {LikedComment} from "./likedComment.entity";
 import {LikedPost} from "./likedPost.entity";
+import {Post} from "./post.entity";
 
 @Entity()
 export class Users {
@@ -33,8 +34,11 @@ export class Users {
     Token: Token
 
     @OneToMany(() => LikedComment, (likedComment) => likedComment.user, {onDelete: 'CASCADE'})
-    likedComment: LikedComment
+    likedComment: LikedComment[]
 
     @OneToMany(() => LikedPost, (likedPost) => likedPost.user, {onDelete: 'CASCADE'})
-    likedPost: LikedPost
+    likedPost: LikedPost[]
+
+    @OneToMany(() => Post, (post) => post.user)
+    post: Post[]
 }

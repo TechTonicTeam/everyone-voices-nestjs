@@ -1,6 +1,7 @@
-import {Column, Entity, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Comment} from "./comment.entity";
 import {LikedPost} from "./likedPost.entity";
+import {Users} from "./user.entity";
 
 @Entity()
 export class Post {
@@ -24,4 +25,7 @@ export class Post {
 
     @OneToMany(() => LikedPost, (likedPost) => likedPost.post, {onDelete: 'CASCADE'})
     likedPost: LikedPost[]
+
+    @ManyToOne(() => Users, (users) => users.post, {onDelete: 'CASCADE'})
+    user: Users
 }
