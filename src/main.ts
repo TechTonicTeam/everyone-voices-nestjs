@@ -24,7 +24,6 @@ async function start() {
       .build()
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
-
   app.use(cookieParser())
   await app.listen(PORT, () => console.log(`SERVER START ON PORT=${PORT}`));
 }
