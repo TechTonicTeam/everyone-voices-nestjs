@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Users} from "../entitis/user.entity";
 import {Repository} from "typeorm";
@@ -15,6 +15,10 @@ export class UserService {
     }
 
     async createNewUser(userInfo: CreateUserDto) {
+        const currentUser = this.userRepository.findOne({where: {email: userInfo.email}})
+        if (currentUser) {
+            throw new BadRequestException('Пользователь уже существует')
+        }
         userInfo.password = this.passwordService.generatePasswordHash(userInfo.password)
         await this.userRepository.save({...userInfo, role: 'user'})
         delete userInfo.password
@@ -22,6 +26,10 @@ export class UserService {
     }
 
     async createNewAdmin(userInfo: CreateAdminDto) {
+        const currentUser = this.userRepository.findOne({where: {email: userInfo.email}})
+        if (currentUser) {
+            throw new BadRequestException('Пользователь уже существует')
+        }
         await this.userRepository.save({...userInfo, role: 'admin'})
         return userInfo
     }
