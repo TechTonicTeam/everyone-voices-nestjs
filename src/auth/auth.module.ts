@@ -6,13 +6,14 @@ import {PasswordService} from "../user/password.service";
 import {TypeOrmModule} from "@nestjs/typeorm";
 import {Users} from "../entitis/user.entity";
 import {Token} from "../entitis/token.entity";
+import {AuthGuard} from "../guards/auth.guard";
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Users, Token])
     ],
     controllers: [AuthController],
-    providers: [AuthService, TokenService, PasswordService]
+    providers: [AuthService, TokenService, PasswordService, AuthGuard]
 })
 
 export class AuthModule{}
