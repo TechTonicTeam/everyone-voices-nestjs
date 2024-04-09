@@ -37,4 +37,15 @@ export class AuthController {
             return new BadRequestException(e.message)
         }
     }
+
+    @Put('logout')
+    async logout(@Body() email: LoginAdminDto, @Res() response: Response) {
+        try {
+            await this.authService.logoutFunction(email)
+            response.clearCookie('refreshToken')
+            return response.status(HttpStatus.OK).json('Успешный выход')
+        } catch (e) {
+            return new BadRequestException(e.message)
+        }
+    }
 }

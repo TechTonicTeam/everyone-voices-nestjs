@@ -52,4 +52,14 @@ export class AuthService {
             tokens
         }
     }
+
+    async logoutFunction(email: LoginAdminDto) {
+        const currentUser = await this.userRepository.findOne({where: {...email}})
+        if (!currentUser) {
+            throw new BadRequestException()
+        }
+
+        await this.tokenService.deleteRefreshToken(currentUser)
+        return 'Успешный выход'
+    }
 }

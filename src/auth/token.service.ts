@@ -1,4 +1,4 @@
-import {Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {JwtService} from '@nestjs/jwt'
 import {InjectRepository} from "@nestjs/typeorm";
 import {Users} from "../entitis/user.entity";
@@ -30,5 +30,14 @@ export class TokenService {
         }
         await this.tokenRepository.save({token, Users: currentUser})
         return currentUser
+    }
+
+    async deleteRefreshToken(currentUser: Users) {
+        const currentToken = await this.tokenRepository.findOne({where: {Users: currentUser}})
+        if (!currentToken) {
+            throw new BadRequestException()
+        }
+
+        await this.tokenRepository.delete(currentToken)
     }
 }
