@@ -6,6 +6,7 @@ import {AuthModule} from "./auth/auth.module";
 import {JwtModule} from "@nestjs/jwt";
 import {PostModule} from "./post/post.module";
 import {CommentModule} from "./comment/comment.module";
+import { join } from 'path';
 
 @Module({
   imports: [

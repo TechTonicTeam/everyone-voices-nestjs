@@ -21,7 +21,7 @@ import {Users} from "./user.entity";
         title: string
 
         @Column()
-        timestamp: Date
+        timestamp: string
 
         @Column()
         picture: string

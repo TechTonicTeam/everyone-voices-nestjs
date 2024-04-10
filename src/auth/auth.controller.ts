@@ -19,7 +19,7 @@ export class AuthController {
                 accessToken: loginInfo.tokens.accessToken
             })
         } catch (e) {
-            return new BadRequestException(e.message)
+            response.status(401).json(e.message)
         }
 
     }
@@ -34,7 +34,7 @@ export class AuthController {
                 accessToken: loginInfo.tokens.accessToken
             })
         } catch (e) {
-            return new BadRequestException(e.message)
+            response.status(401).json(e.message)
         }
     }
 
@@ -53,7 +53,6 @@ export class AuthController {
     async refreshToken(@Body() email: LoginAdminDto, @Res() response: Response, @Req() request: Request) {
         try {
             const refreshToken = request.cookies['refreshToken']
-            console.log(refreshToken)
             if (!refreshToken) {
                 return new BadRequestException()
             }
@@ -65,7 +64,7 @@ export class AuthController {
                 ...userWithTokens
             })
         } catch(e) {
-            return new BadRequestException(e.message)
+            response.status(401).json(e.message)
         }
     }
 }

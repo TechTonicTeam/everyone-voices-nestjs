@@ -1,4 +1,4 @@
-import {ApiProperty} from "@nestjs/swagger";
+import {ApiBody, ApiProperty} from "@nestjs/swagger";
 
 export class CreateNewPostDto {
     @ApiProperty()
@@ -7,13 +7,8 @@ export class CreateNewPostDto {
     @ApiProperty()
     title: string
 
-    @ApiProperty({
-        nullable: true
-    })
-    picture: string
-
     @ApiProperty()
-    timestamp: Date
+    timestamp: string
 }
 
 export class DeletePostDto {
@@ -28,3 +23,4 @@ export class LikePostDto {
     @ApiProperty()
     post_id: number
 }
+

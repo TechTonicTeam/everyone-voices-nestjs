@@ -16,7 +16,7 @@ export class AuthService {
     ) {
     }
 
-    async userLogin(userInfo: LoginUserDto) {
+    async adminLogin(userInfo: LoginAdminDto) {
         const currentUser = await this.userRepository.findOne({where: {email: userInfo.email}})
         if (!currentUser) {
             throw new BadRequestException()
@@ -38,7 +38,7 @@ export class AuthService {
         }
     }
 
-    async adminLogin(userInfo: LoginAdminDto) {
+    async userLogin(userInfo: LoginUserDto) {
         const currentUser = await this.userRepository.findOne({where: {email: userInfo.email}})
         if (!currentUser) {
             throw new BadRequestException()

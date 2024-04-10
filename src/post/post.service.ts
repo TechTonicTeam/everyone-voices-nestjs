@@ -14,11 +14,18 @@ export class PostService {
         private userRepository: Repository<Users>,
     ) {
     }
-    async createNewPost(postInfo: CreateNewPostDto) {
+    async createNewPost(postInfo: CreateNewPostDto, filename: string) {
         const currentUser = await this.userRepository.findOne({where: {id: postInfo.user_id}})
+        if (!currentUser) {
+            throw new BadRequestException()
+        }
         delete currentUser.password
-        const createPost = this.postRepository.create({...postInfo, likes: 0, user: currentUser})
-        return  await this.postRepository.save(createPost)
+        const createPost = this.postRepository.create({...postInfo, likes: 0, user: currentUser, picture: filename})
+        await this.postRepository.save(createPost)
+        return await this.postRepository.findOne({
+            where: {...createPost},
+            relations: ['likedUser', 'comment', 'user', 'comment.likedUser', 'comment.user']
+        })
     }
 
     async deletePost(postInfo: DeletePostDto) {
@@ -30,24 +37,21 @@ export class PostService {
             case 'Сначала популярные':
                 return await this.getPostAscDesc('likes asc')
             case 'Сначала старые':
-                return await this.getPostAscDesc('DESC')
+                return await this.getPostAscDesc('ASC')
             case 'Сначала мои предложения':
                 return await this.getMyPost(user_id)
             default:
-                return await this.getPostAscDesc('ASC')
+                return await this.getPostAscDesc('DESC')
         }
     }
 
     async getPostAscDesc(sorting: string) {
-        const orderObject: { [key: string]: 'ASC' | 'DESC' } = {};
-        if (sorting === 'asc' || sorting === 'desc') {
-            orderObject.timestamp = sorting.toUpperCase() as 'ASC' | 'DESC';
-        }
-        else if (sorting === 'likes asc') {
-            orderObject.likes = 'ASC'
+        const orderObject: { [key: string]: string } = {}
+        if (sorting === 'likes asc') {
+            orderObject.likes = 'DESC'
         }
         else {
-            orderObject.timestamp = 'ASC';
+            orderObject.id = sorting;
         }
 
         return await this.postRepository.find({
@@ -61,14 +65,23 @@ export class PostService {
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')
             .where('user.id = :user_id', { user_id })
+            .leftJoinAndSelect('post.comment', 'comment')
+            .leftJoinAndSelect('comment.user', 'users')
+            .leftJoinAndSelect('comment.likedUser', 'likedUser')
+            .leftJoinAndSelect('post.likedUser', 'liked')
+            .orderBy('post.id', 'DESC')
             .getMany();
 
         const otherPost = await this.postRepository
             .createQueryBuilder('post')
             .leftJoinAndSelect('post.user', 'user')
             .where('user.id != :user_id', { user_id })
+            .leftJoinAndSelect('post.comment', 'comment')
+            .leftJoinAndSelect('comment.user', 'users')
+            .leftJoinAndSelect('comment.likedUser', 'likedUser')
+            .leftJoinAndSelect('post.likedUser', 'liked')
+            .orderBy('post.id', 'DESC')
             .getMany();
-
         return [...myPost, ...otherPost]
     }
 
