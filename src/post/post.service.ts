@@ -4,8 +4,6 @@ import {Post} from "../entities/post.entity";
 import {Repository} from "typeorm";
 import {CreateNewPostDto, DeletePostDto} from "./dto";
 import {Users} from "../entities/user.entity";
-import {LikedPost} from "../entities/likedPost.entity";
-
 @Injectable()
 
 export class PostService {
@@ -14,8 +12,6 @@ export class PostService {
         private postRepository: Repository<Post>,
         @InjectRepository(Users)
         private userRepository: Repository<Users>,
-        @InjectRepository(LikedPost)
-        private likedPostRepository: Repository<LikedPost>
     ) {
     }
     async createNewPost(postInfo: CreateNewPostDto) {
@@ -55,7 +51,7 @@ export class PostService {
         }
 
         return await this.postRepository.find({
-            relations: ['likedPost', 'likedPost.user', 'comment', 'user', 'comment.likedComment'],
+            relations: ['likedUser', 'comment', 'user', 'comment.likedUser', 'comment.user'],
             order: orderObject
         })
     }
@@ -78,33 +74,18 @@ export class PostService {
 
     async likePost(user_id: number, post_id: number) {
         const info = await this.checkPost(user_id, post_id)
-        const likedPost = await this.likedPostRepository.findOne({where: {post: info.currentPost, user: info.currentUser}})
-        if (likedPost) {
-            throw new BadRequestException()
-        }
         info.currentPost.likes++
+        info.currentPost.likedUser.push(info.currentUser)
         await this.postRepository.save(info.currentPost)
-        const newLike = this.likedPostRepository.create({user: info.currentUser, post: info.currentPost})
-        await this.likedPostRepository.save(newLike)
-        return await this.postRepository.find({
-            where: {id: post_id},
-            relations: ['likedPost', 'likedPost.user', 'comment', 'user', 'comment.likedComment'],
-        })
+        return await this.getOnePost(post_id)
     }
 
     async dislikePost(user_id: number, post_id: number) {
         const likeInfo = await this.checkPost(user_id, post_id)
-        const likedPost = await this.likedPostRepository.findOne({where: {post: likeInfo.currentPost, user: likeInfo.currentUser}})
-        if (!likedPost) {
-            throw new BadRequestException()
-        }
         likeInfo.currentPost.likes--
+        likeInfo.currentPost.likedUser = likeInfo.currentPost.likedUser.filter(item => item.id !== user_id)
         await this.postRepository.save(likeInfo.currentPost)
-        await this.likedPostRepository.delete(likedPost)
-        return await this.postRepository.find({
-            where: {id: post_id},
-            relations: ['likedPost', 'likedPost.user', 'comment', 'user', 'comment.likedComment'],
-        })
+        return await this.getOnePost(post_id)
     }
 
     async checkPost(user_id: number, post_id: number) {
@@ -113,11 +94,22 @@ export class PostService {
             throw new BadRequestException()
         }
 
-        const currentPost = await this.postRepository.findOne({where: {id: post_id}})
+        const currentPost = await this.postRepository.findOne({
+            where: {id: post_id},
+            relations: ['likedUser']
+        })
+
         if (!currentPost) {
             throw new BadRequestException()
         }
         delete currentUser.password
         return {currentUser, currentPost}
+    }
+
+    async getOnePost(post_id: number) {
+        return await this.postRepository.findOne({
+            where: {id: post_id},
+            relations: ['likedUser', 'comment', 'user', 'comment.likedUser', 'comment.user'],
+        })
     }
 }

@@ -1,6 +1,6 @@
-import {Column, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn} from "typeorm";
 import {Post} from "./post.entity";
-import {LikedComment} from "./likedComment.entity";
+import {Users} from "./user.entity";
 
 @Entity()
 export class Comment {
@@ -11,7 +11,7 @@ export class Comment {
     title: string
 
     @Column()
-    timestamp: string
+    timestamp: Date
 
     @Column()
     likes: number
@@ -19,6 +19,10 @@ export class Comment {
     @ManyToOne(() => Post, (post) => post.comment, {onDelete: 'CASCADE'})
     post: Post
 
-    @OneToMany(() => LikedComment, (likedComment) => likedComment.comment, {onDelete: "CASCADE"})
-    likedComment: LikedComment[]
+    @ManyToMany(() => Users, (users) => users.comments, {onDelete: 'CASCADE'})
+    @JoinTable({name: 'likes_comments'})
+    likedUser: Users[]
+
+    @ManyToOne(() => Users, (users) => users.comments, {onDelete: 'CASCADE'})
+    user: Users
 }

@@ -1,6 +1,15 @@
-import {Column, Entity, JoinColumn, ManyToOne, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {
+    Column,
+    Entity,
+    JoinColumn,
+    JoinTable,
+    ManyToMany,
+    ManyToOne,
+    OneToMany,
+    OneToOne,
+    PrimaryGeneratedColumn
+} from "typeorm";
 import {Comment} from "./comment.entity";
-import {LikedPost} from "./likedPost.entity";
 import {Users} from "./user.entity";
 
     @Entity()
@@ -23,8 +32,9 @@ import {Users} from "./user.entity";
         @OneToMany(() => Comment, (comment) => comment.post)
         comment: Comment[]
 
-        @OneToMany(() => LikedPost, (likedPost) => likedPost.post)
-        likedPost: LikedPost[]
+        @ManyToMany(() => Users)
+        @JoinTable({name: 'liked_post'})
+        likedUser: Users[]
 
         @ManyToOne(() => Users, (users) => users.post, {onDelete: 'CASCADE'})
         user: Users

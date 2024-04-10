@@ -1,8 +1,7 @@
-import {Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {Token} from "./token.entity";
-import {LikedComment} from "./likedComment.entity";
-import {LikedPost} from "./likedPost.entity";
 import {Post} from "./post.entity";
+import {Comment} from "./comment.entity";
 
 @Entity()
 export class Users {
@@ -33,12 +32,10 @@ export class Users {
     @OneToOne(() => Token)
     Token: Token
 
-    @OneToMany(() => LikedComment, (likedComment) => likedComment.user, {onDelete: 'CASCADE'})
-    likedComment: LikedComment[]
-
-    @OneToMany(() => LikedPost, (likedPost) => likedPost.user, {onDelete: 'CASCADE'})
-    likedPost: LikedPost[]
-
     @OneToMany(() => Post, (post) => post.user, {onDelete: 'CASCADE'})
     post: Post[]
+
+    @OneToMany(() => Comment, (comment) => comment.user, {onDelete: 'CASCADE'})
+    comments: Comment[]
+
 }

@@ -5,12 +5,14 @@ import {UserModule} from "./user/user.module";
 import {AuthModule} from "./auth/auth.module";
 import {JwtModule} from "@nestjs/jwt";
 import {PostModule} from "./post/post.module";
+import {CommentModule} from "./comment/comment.module";
 
 @Module({
   imports: [
       UserModule,
       AuthModule,
       PostModule,
+      CommentModule,
       ConfigModule.forRoot({isGlobal: true}),
       TypeOrmModule.forRootAsync({
         imports: [ConfigModule],
