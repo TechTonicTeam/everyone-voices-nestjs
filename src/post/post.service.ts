@@ -77,6 +77,37 @@ export class PostService {
     }
 
     async likePost(user_id: number, post_id: number) {
+        const info = await this.checkPost(user_id, post_id)
+        const likedPost = await this.likedPostRepository.findOne({where: {post: info.currentPost, user: info.currentUser}})
+        if (likedPost) {
+            throw new BadRequestException()
+        }
+        info.currentPost.likes++
+        await this.postRepository.save(info.currentPost)
+        const newLike = this.likedPostRepository.create({user: info.currentUser, post: info.currentPost})
+        await this.likedPostRepository.save(newLike)
+        return await this.postRepository.find({
+            where: {id: post_id},
+            relations: ['likedPost', 'likedPost.user', 'comment', 'user', 'comment.likedComment'],
+        })
+    }
+
+    async dislikePost(user_id: number, post_id: number) {
+        const likeInfo = await this.checkPost(user_id, post_id)
+        const likedPost = await this.likedPostRepository.findOne({where: {post: likeInfo.currentPost, user: likeInfo.currentUser}})
+        if (!likedPost) {
+            throw new BadRequestException()
+        }
+        likeInfo.currentPost.likes--
+        await this.postRepository.save(likeInfo.currentPost)
+        await this.likedPostRepository.delete(likedPost)
+        return await this.postRepository.find({
+            where: {id: post_id},
+            relations: ['likedPost', 'likedPost.user', 'comment', 'user', 'comment.likedComment'],
+        })
+    }
+
+    async checkPost(user_id: number, post_id: number) {
         const currentUser = await this.userRepository.findOne({where: {id: user_id}})
         if (!currentUser) {
             throw new BadRequestException()
@@ -86,19 +117,7 @@ export class PostService {
         if (!currentPost) {
             throw new BadRequestException()
         }
-
-        const likedPost = await this.likedPostRepository.findOne({where: {post: currentPost, user: currentUser}})
-        if (likedPost) {
-            throw new BadRequestException()
-        }
-
-        currentPost.likes++
-        await this.postRepository.save(currentPost)
-        const newLike = this.likedPostRepository.create({user: currentUser, post: currentPost})
-        await this.likedPostRepository.save(newLike)
-        return await this.postRepository.find({
-            where: {id: post_id},
-            relations: ['likedPost', 'likedPost.user', 'comment', 'user', 'comment.likedComment'],
-        })
+        delete currentUser.password
+        return {currentUser, currentPost}
     }
 }

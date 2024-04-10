@@ -45,4 +45,12 @@ export class PostController {
         }
     }
 
+    @Put('dislike')
+    async dislikePost(@Body() info: LikePostDto) {
+        try {
+            return await this.postService.dislikePost(info.user_id, info.post_id)
+        } catch(e) {
+            return new BadRequestException(e.message)
+        }
+    }
 }
