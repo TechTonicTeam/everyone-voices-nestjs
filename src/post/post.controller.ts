@@ -1,5 +1,5 @@
-import {BadRequestException, Body, Controller, Delete, Get, Param, Post, Query} from "@nestjs/common";
-import {CreateNewPostDto, DeletePostDto} from "./dto";
+import {BadRequestException, Body, Controller, Delete, Get, Param, Post, Put, Query} from "@nestjs/common";
+import {CreateNewPostDto, DeletePostDto, LikePostDto} from "./dto";
 import {PostService} from "./post.service";
 import {ApiProperty} from "@nestjs/swagger";
 
@@ -35,4 +35,14 @@ export class PostController {
             return new BadRequestException(e.message)
         }
     }
+
+    @Put('like')
+    async likePost(@Body() info: LikePostDto) {
+        try {
+            return await this.postService.likePost(info.user_id, info.post_id)
+        } catch(e) {
+            return new BadRequestException(e.message)
+        }
+    }
+
 }

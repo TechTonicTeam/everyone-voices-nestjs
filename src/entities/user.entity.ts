@@ -39,6 +39,6 @@ export class Users {
     @OneToMany(() => LikedPost, (likedPost) => likedPost.user, {onDelete: 'CASCADE'})
     likedPost: LikedPost[]
 
-    @OneToMany(() => Post, (post) => post.user)
+    @OneToMany(() => Post, (post) => post.user, {onDelete: 'CASCADE'})
     post: Post[]
 }

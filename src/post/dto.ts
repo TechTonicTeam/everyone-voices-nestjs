@@ -20,3 +20,11 @@ export class DeletePostDto {
     @ApiProperty()
     post_id: number
 }
+
+export class LikePostDto {
+    @ApiProperty()
+    user_id: number
+
+    @ApiProperty()
+    post_id: number
+}

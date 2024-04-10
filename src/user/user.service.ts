@@ -15,8 +15,8 @@ export class UserService {
     }
 
     async createNewUser(userInfo: CreateUserDto) {
-        const currentUser = this.userRepository.findOne({where: {email: userInfo.email}})
-        if (currentUser) {
+        const currentUser = await this.userRepository.findOne({where: {email: userInfo.email}})
+        if (!!currentUser) {
             throw new BadRequestException('Пользователь уже существует')
         }
         userInfo.password = this.passwordService.generatePasswordHash(userInfo.password)
@@ -26,8 +26,8 @@ export class UserService {
     }
 
     async createNewAdmin(userInfo: CreateAdminDto) {
-        const currentUser = this.userRepository.findOne({where: {email: userInfo.email}})
-        if (currentUser) {
+        const currentUser = await this.userRepository.findOne({where: {email: userInfo.email}})
+        if (!!currentUser) {
             throw new BadRequestException('Пользователь уже существует')
         }
         await this.userRepository.save({...userInfo, role: 'admin'})

@@ -1,9 +1,10 @@
-import {Injectable} from "@nestjs/common";
+import {BadRequestException, Injectable} from "@nestjs/common";
 import {InjectRepository} from "@nestjs/typeorm";
 import {Post} from "../entities/post.entity";
 import {Repository} from "typeorm";
 import {CreateNewPostDto, DeletePostDto} from "./dto";
 import {Users} from "../entities/user.entity";
+import {LikedPost} from "../entities/likedPost.entity";
 
 @Injectable()
 
@@ -12,7 +13,9 @@ export class PostService {
         @InjectRepository(Post)
         private postRepository: Repository<Post>,
         @InjectRepository(Users)
-        private userRepository: Repository<Users>
+        private userRepository: Repository<Users>,
+        @InjectRepository(LikedPost)
+        private likedPostRepository: Repository<LikedPost>
     ) {
     }
     async createNewPost(postInfo: CreateNewPostDto) {
@@ -52,7 +55,7 @@ export class PostService {
         }
 
         return await this.postRepository.find({
-            relations: ['likedPost', 'comment', 'user', 'comment.likedComment'],
+            relations: ['likedPost', 'likedPost.user', 'comment', 'user', 'comment.likedComment'],
             order: orderObject
         })
     }
@@ -71,5 +74,31 @@ export class PostService {
             .getMany();
 
         return [...myPost, ...otherPost]
+    }
+
+    async likePost(user_id: number, post_id: number) {
+        const currentUser = await this.userRepository.findOne({where: {id: user_id}})
+        if (!currentUser) {
+            throw new BadRequestException()
+        }
+
+        const currentPost = await this.postRepository.findOne({where: {id: post_id}})
+        if (!currentPost) {
+            throw new BadRequestException()
+        }
+
+        const likedPost = await this.likedPostRepository.findOne({where: {post: currentPost, user: currentUser}})
+        if (likedPost) {
+            throw new BadRequestException()
+        }
+
+        currentPost.likes++
+        await this.postRepository.save(currentPost)
+        const newLike = this.likedPostRepository.create({user: currentUser, post: currentPost})
+        await this.likedPostRepository.save(newLike)
+        return await this.postRepository.find({
+            where: {id: post_id},
+            relations: ['likedPost', 'likedPost.user', 'comment', 'user', 'comment.likedComment'],
+        })
     }
 }
