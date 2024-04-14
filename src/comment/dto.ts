@@ -5,7 +5,7 @@ export class CreateCommentDto {
     title: string
 
     @ApiProperty()
-    timestamp: Date
+    timestamp: string
 
     @ApiProperty()
     user_id: number

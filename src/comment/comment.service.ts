@@ -16,7 +16,7 @@ export class CommentService {
         private commentRepository: Repository<Comment>,
     ) {
     }
-    async createNewComment(user_id: number, post_id: number, comment_title: string, comment_timestamp: Date) {
+    async createNewComment(user_id: number, post_id: number, comment_title: string, comment_timestamp: string) {
         const currentUser = await this.userRepository.findOne({where: {id: user_id}})
         if (!currentUser) {
             throw new BadRequestException()

@@ -11,7 +11,7 @@ export class Comment {
     title: string
 
     @Column()
-    timestamp: Date
+    timestamp: string
 
     @Column()
     likes: number

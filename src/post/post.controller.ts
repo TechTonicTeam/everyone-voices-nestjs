@@ -4,26 +4,19 @@ import {
     Controller,
     Delete,
     Get,
-    Param,
     Post,
     Put,
-    Query, Res, UploadedFile, UploadedFiles,
+    Query, UploadedFile,
     UseInterceptors
 } from "@nestjs/common";
 import {CreateNewPostDto, DeletePostDto, LikePostDto} from "./dto";
 import {PostService} from "./post.service";
-import {ApiBody, ApiConsumes, ApiOperation, ApiProperty} from "@nestjs/swagger";
-import {FileInterceptor, FilesInterceptor} from "@nestjs/platform-express";
+import {FileInterceptor} from "@nestjs/platform-express";
 import {diskStorage} from "multer";
-import e from "express";
-import {extname} from "path";
-import {ConfigService} from "@nestjs/config";
-import * as path from "path";
 @Controller('post')
 export class PostController {
     constructor(
         private postService: PostService,
-        private readonly configService: ConfigService
     ) {
     }
 
@@ -83,6 +76,15 @@ export class PostController {
         try {
             return await this.postService.dislikePost(info.user_id, info.post_id)
         } catch(e) {
+            return new BadRequestException(e.message)
+        }
+    }
+
+    @Get('one-post')
+    async getOnePost(@Query('post_id') post_id: number) {
+        try {
+            return await this.postService.getOnePost(post_id)
+        } catch (e) {
             return new BadRequestException(e.message)
         }
     }

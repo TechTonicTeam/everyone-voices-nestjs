@@ -120,6 +120,9 @@ export class PostService {
     }
 
     async getOnePost(post_id: number) {
+        if (!post_id) {
+            throw new BadRequestException()
+        }
         return await this.postRepository.findOne({
             where: {id: post_id},
             relations: ['likedUser', 'comment', 'user', 'comment.likedUser', 'comment.user'],
