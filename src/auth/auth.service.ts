@@ -40,8 +40,10 @@ export class AuthService {
 
     async userLogin(userInfo: LoginUserDto) {
         const currentUser = await this.userRepository.findOne({where: {email: userInfo.email}})
+        console.log(userInfo.email)
+        console.log(currentUser)
         if (!currentUser) {
-            throw new BadRequestException()
+            return null
         }
 
         const tokens = this.tokenService.generateTokenPairs(currentUser)
@@ -65,13 +67,12 @@ export class AuthService {
 
     async refreshTokens(token: string) {
         const verifyToken = this.tokenService.verifyToken(token)
-        if (!verifyToken) {
-            throw new BadRequestException()
-        }
-
         const currentUser = await this.userRepository.findOne({where: {email: verifyToken.email}})
         if (!currentUser) {
-            throw new BadRequestException()
+            return null
+        }
+        if (!verifyToken) {
+            return null
         }
 
         delete currentUser.password

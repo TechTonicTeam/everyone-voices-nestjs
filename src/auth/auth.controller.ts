@@ -13,6 +13,11 @@ export class AuthController {
     async userLogin(@Body() userInfo: LoginUserDto, @Res() response: Response) {
         try {
             const loginInfo = await this.authService.userLogin(userInfo)
+            if (!loginInfo) {
+                return new BadRequestException()
+            }
+
+
             response.cookie('refreshToken', loginInfo.tokens.refreshToken, {httpOnly: true})
             return response.status(HttpStatus.OK).json({
                 user: loginInfo.currentUser,
@@ -58,6 +63,11 @@ export class AuthController {
             }
 
             const userWithTokens = await this.authService.refreshTokens(refreshToken)
+
+            if (!userWithTokens) {
+                return new BadRequestException()
+            }
+
             response.cookie('refreshToken', userWithTokens.refreshToken, {httpOnly: true})
             delete userWithTokens.refreshToken
             return response.status(HttpStatus.OK).json({
