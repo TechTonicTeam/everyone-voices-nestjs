@@ -13,8 +13,9 @@ export class AuthController {
     async userLogin(@Body() userInfo: LoginUserDto, @Res() response: Response) {
         try {
             const loginInfo = await this.authService.userLogin(userInfo)
+
             if (!loginInfo) {
-                return new BadRequestException()
+                throw new BadRequestException()
             }
 
 
@@ -59,13 +60,13 @@ export class AuthController {
         try {
             const refreshToken = request.cookies['refreshToken']
             if (!refreshToken) {
-                return new BadRequestException()
+                throw new BadRequestException()
             }
 
             const userWithTokens = await this.authService.refreshTokens(refreshToken)
 
             if (!userWithTokens) {
-                return new BadRequestException()
+                throw new BadRequestException()
             }
 
             response.cookie('refreshToken', userWithTokens.refreshToken, {httpOnly: true})

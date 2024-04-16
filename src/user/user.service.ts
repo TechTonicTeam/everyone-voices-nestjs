@@ -35,11 +35,13 @@ export class UserService {
     }
 
     async putUserIcon(pictureInfo: PutUserIcon) {
-        const currentUser = await this.userRepository.findOne({where: {id: pictureInfo.user_id}})
+        if (!pictureInfo.user_id) {
+            throw new BadRequestException()
+        }
+        const currentUser = await this.userRepository.findOneByOrFail(({id: pictureInfo.user_id}))
         if (!currentUser) {
             throw new BadRequestException()
         }
-
         currentUser.picture = pictureInfo.picture
         await this.userRepository.save(currentUser)
         return 'Иконка обновлена'

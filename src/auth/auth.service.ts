@@ -17,11 +17,13 @@ export class AuthService {
     }
 
     async adminLogin(userInfo: LoginAdminDto) {
+        if (!userInfo.email || !userInfo.password) {
+            throw new BadRequestException()
+        }
         const currentUser = await this.userRepository.findOne({where: {email: userInfo.email}})
         if (!currentUser) {
             throw new BadRequestException()
         }
-
         const verifyPassword = this.passwordService.verifyPassword(currentUser, userInfo.password)
 
         if (!verifyPassword) {
@@ -40,8 +42,6 @@ export class AuthService {
 
     async userLogin(userInfo: LoginUserDto) {
         const currentUser = await this.userRepository.findOne({where: {email: userInfo.email}})
-        console.log(userInfo.email)
-        console.log(currentUser)
         if (!currentUser) {
             return null
         }
@@ -67,12 +67,13 @@ export class AuthService {
 
     async refreshTokens(token: string) {
         const verifyToken = this.tokenService.verifyToken(token)
+        if (!verifyToken) {
+            throw new BadRequestException()
+        }
+
         const currentUser = await this.userRepository.findOne({where: {email: verifyToken.email}})
         if (!currentUser) {
-            return null
-        }
-        if (!verifyToken) {
-            return null
+            throw new BadRequestException()
         }
 
         delete currentUser.password
