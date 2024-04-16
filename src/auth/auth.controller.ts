@@ -50,14 +50,14 @@ export class AuthController {
     }
 
     @Put('refresh')
-    async refreshToken(@Body() email: LoginAdminDto, @Res() response: Response, @Req() request: Request) {
+    async refreshToken(@Res() response: Response, @Req() request: Request) {
         try {
             const refreshToken = request.cookies['refreshToken']
             if (!refreshToken) {
                 return new BadRequestException()
             }
 
-            const userWithTokens = await this.authService.refreshTokens(email, refreshToken)
+            const userWithTokens = await this.authService.refreshTokens(refreshToken)
             response.cookie('refreshToken', userWithTokens.refreshToken, {httpOnly: true})
             delete userWithTokens.refreshToken
             return response.status(HttpStatus.OK).json({
