@@ -4,6 +4,8 @@ import {Post} from "../entities/post.entity";
 import {Repository} from "typeorm";
 import {CreateNewPostDto, DeletePostDto} from "./dto";
 import {Users} from "../entities/user.entity";
+import {PostPictures} from "../entities/postPictures.entity";
+import {ReportPictures} from "../entities/reportPictures.entity";
 @Injectable()
 
 export class PostService {
@@ -12,19 +14,31 @@ export class PostService {
         private postRepository: Repository<Post>,
         @InjectRepository(Users)
         private userRepository: Repository<Users>,
+        @InjectRepository(PostPictures)
+        private postPicturesRepository: Repository<PostPictures>
     ) {
     }
-    async createNewPost(postInfo: CreateNewPostDto, filename: string) {
+    async createNewPost(postInfo: CreateNewPostDto, fileNames: string[]) {
         const currentUser = await this.userRepository.findOne({where: {id: postInfo.user_id}})
         if (!currentUser) {
             throw new BadRequestException()
         }
         delete currentUser.password
-        const createPost = this.postRepository.create({...postInfo, likes: 0, user: currentUser, picture: filename})
+        const createPost = this.postRepository.create({...postInfo, likes: 0, user: currentUser})
         await this.postRepository.save(createPost)
+
+        const files = fileNames.map(fileName => {
+            const postPictures = new PostPictures();
+            postPictures.picture = fileName;
+            postPictures.post = createPost;
+            return postPictures;
+        });
+
+        await this.postPicturesRepository.save(files)
+
         return await this.postRepository.findOne({
             where: {...createPost},
-            relations: ['likedUser', 'comment', 'user', 'comment.likedUser', 'comment.user']
+            relations: ['likedUser', 'pictures', 'comment', 'user', 'comment.likedUser', 'comment.user']
         })
     }
 
@@ -55,7 +69,7 @@ export class PostService {
         }
 
         return await this.postRepository.find({
-            relations: ['likedUser', 'comment', 'user', 'comment.likedUser', 'comment.user'],
+            relations: ['likedUser', 'pictures', 'comment', 'user', 'comment.likedUser', 'comment.user'],
             order: orderObject
         })
     }
@@ -66,6 +80,7 @@ export class PostService {
             .leftJoinAndSelect('post.user', 'user')
             .where('user.id = :user_id', { user_id })
             .leftJoinAndSelect('post.comment', 'comment')
+            .leftJoinAndSelect('post.pictures', 'pictures')
             .leftJoinAndSelect('comment.user', 'users')
             .leftJoinAndSelect('comment.likedUser', 'likedUser')
             .leftJoinAndSelect('post.likedUser', 'liked')
@@ -77,6 +92,7 @@ export class PostService {
             .leftJoinAndSelect('post.user', 'user')
             .where('user.id != :user_id', { user_id })
             .leftJoinAndSelect('post.comment', 'comment')
+            .leftJoinAndSelect('post.pictures', 'pictures')
             .leftJoinAndSelect('comment.user', 'users')
             .leftJoinAndSelect('comment.likedUser', 'likedUser')
             .leftJoinAndSelect('post.likedUser', 'liked')

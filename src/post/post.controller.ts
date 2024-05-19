@@ -6,12 +6,12 @@ import {
     Get,
     Post,
     Put,
-    Query, UploadedFile,
+    Query, UploadedFile, UploadedFiles,
     UseInterceptors
 } from "@nestjs/common";
 import {CreateNewPostDto, DeletePostDto, LikePostDto} from "./dto";
 import {PostService} from "./post.service";
-import {FileInterceptor} from "@nestjs/platform-express";
+import {FilesInterceptor} from "@nestjs/platform-express";
 import {diskStorage} from "multer";
 import {ApiTags} from "@nestjs/swagger";
 
@@ -32,25 +32,26 @@ export class PostController {
         }
     }
 
-    @UseInterceptors(FileInterceptor('file', {
-        storage: diskStorage({
-            destination: 'uploads',
-            filename: (req, file, cb) => {
-                const randomName = Array(32).fill(null).map(() => (Math.round(Math.random() * 16)).toString(16)).join('');
-                cb(null, `${randomName}${(file.originalname)}`);
-            }
-        })
-    }))
+    @UseInterceptors(
+        FilesInterceptor('files', 10, {
+            storage: diskStorage({
+                destination: './uploads',
+                filename: (req, file, cb) => {
+                    const randomName = Array(32)
+                        .fill(null)
+                        .map(() => (Math.round(Math.random() * 16)).toString(16))
+                        .join('');
+                    cb(null, `${randomName}-${file.originalname}`);
+                },
+            }),
+        }),
+    )
     @Post('create')
-    async createNewPost(@UploadedFile() file, @Body() postInfo: CreateNewPostDto) {
+    async createNewPost(@UploadedFiles() files: Express.Multer.File[], @Body() postInfo: CreateNewPostDto) {
         try {
-            let files: string
-            if (file?.filename) {
-                files = file.filename
-            } else {
-                files = ''
-            }
-            return await this.postService.createNewPost(postInfo, files)
+            const fileNames = files.map(file => file.filename);
+
+            return await this.postService.createNewPost(postInfo, fileNames)
         } catch (e) {
             return new BadRequestException(e.message)
         }

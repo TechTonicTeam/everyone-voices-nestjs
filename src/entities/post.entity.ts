@@ -11,6 +11,7 @@ import {
 } from "typeorm";
 import {Comment} from "./comment.entity";
 import {Users} from "./user.entity";
+import {PostPictures} from "./postPictures.entity";
 
     @Entity()
     export class Post {
@@ -24,9 +25,6 @@ import {Users} from "./user.entity";
         timestamp: string
 
         @Column()
-        picture: string
-
-        @Column()
         likes: number
 
         @OneToMany(() => Comment, (comment) => comment.post)
@@ -38,4 +36,7 @@ import {Users} from "./user.entity";
 
         @ManyToOne(() => Users, (users) => users.post, {onDelete: 'CASCADE'})
         user: Users
+
+        @OneToMany(() => PostPictures, (postPictures) => postPictures.post)
+        pictures: PostPictures[]
     }

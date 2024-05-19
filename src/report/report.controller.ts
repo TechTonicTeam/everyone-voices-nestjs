@@ -49,6 +49,7 @@ export class ReportController {
     async createReport(@UploadedFiles() files: Express.Multer.File[], @Body() report: CreateReportDto) {
         try {
             const fileNames = files.map(file => file.filename);
+            console.log(fileNames)
             return await this.reportService.createReport(report, fileNames)
         } catch (e) {
             return new BadRequestException(e.message)
