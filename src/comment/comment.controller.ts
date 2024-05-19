@@ -1,7 +1,9 @@
 import {BadRequestException, Body, Controller, Delete, Post, Put} from "@nestjs/common";
 import {CommentService} from "./comment.service";
 import {CreateCommentDto, DeleteCommentDto, LikeCommentDto} from "./dto";
+import {ApiTags} from "@nestjs/swagger";
 
+@ApiTags('Comments')
 @Controller('comment')
 export class CommentController {
     constructor(

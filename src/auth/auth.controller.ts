@@ -2,7 +2,9 @@ import {BadRequestException, Body, Controller, HttpStatus, Put, Req, Res} from "
 import {LoginAdminDto, LoginUserDto} from "./dto";
 import {AuthService} from "./auth.service";
 import {Response, Request} from 'express'
+import {ApiTags} from "@nestjs/swagger";
 
+@ApiTags('Authentication')
 @Controller('auth')
 export class AuthController {
     constructor(

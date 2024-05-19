@@ -1,7 +1,8 @@
-import {Column, Entity, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
+import {Column, Entity, OneToMany, OneToOne, PrimaryGeneratedColumn} from "typeorm";
 import {Token} from "./token.entity";
 import {Post} from "./post.entity";
 import {Comment} from "./comment.entity";
+import {Report} from "./report.entity";
 
 @Entity()
 export class Users {
@@ -38,4 +39,6 @@ export class Users {
     @OneToMany(() => Comment, (comment) => comment.user, {onDelete: 'CASCADE'})
     comments: Comment[]
 
+    @OneToMany(() => Report, (report) => report.user, {onDelete: 'CASCADE'})
+    reports: Report[]
 }

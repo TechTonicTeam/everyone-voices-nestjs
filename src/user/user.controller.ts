@@ -3,9 +3,10 @@ import {CreateAdminDto, CreateUserDto} from "./dto";
 import {UserService} from "./user.service";
 import {Roles} from "../decorators/roles.decorator";
 import {AuthGuard} from "../guards/auth.guard";
-import {ApiBearerAuth} from "@nestjs/swagger";
+import {ApiBearerAuth, ApiTags} from "@nestjs/swagger";
 import {PutUserIcon} from "./dto";
 
+@ApiTags('Users')
 @Roles(['admin'])
 @Controller('user')
 // @ApiBearerAuth()

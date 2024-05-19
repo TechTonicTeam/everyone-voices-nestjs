@@ -6,7 +6,7 @@ import {AuthModule} from "./auth/auth.module";
 import {JwtModule} from "@nestjs/jwt";
 import {PostModule} from "./post/post.module";
 import {CommentModule} from "./comment/comment.module";
-import { join } from 'path';
+import {ReportModule} from "./report/report.module";
 
 @Module({
   imports: [
@@ -14,6 +14,7 @@ import { join } from 'path';
       AuthModule,
       PostModule,
       CommentModule,
+      ReportModule,
       ConfigModule.forRoot({isGlobal: true}),
       TypeOrmModule.forRootAsync({
         imports: [ConfigModule],

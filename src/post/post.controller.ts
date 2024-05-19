@@ -13,6 +13,9 @@ import {CreateNewPostDto, DeletePostDto, LikePostDto} from "./dto";
 import {PostService} from "./post.service";
 import {FileInterceptor} from "@nestjs/platform-express";
 import {diskStorage} from "multer";
+import {ApiTags} from "@nestjs/swagger";
+
+@ApiTags('Posts')
 @Controller('post')
 export class PostController {
     constructor(
