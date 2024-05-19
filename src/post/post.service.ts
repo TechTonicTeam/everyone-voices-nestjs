@@ -141,7 +141,7 @@ export class PostService {
         }
         return await this.postRepository.findOne({
             where: {id: post_id},
-            relations: ['likedUser', 'comment', 'user', 'comment.likedUser', 'comment.user'],
+            relations: ['likedUser', 'comment', 'pictures', 'user', 'comment.likedUser', 'comment.user'],
         })
     }
 }
